@@ -2,16 +2,18 @@
 
 ## CompletedSlices
 - **Slice 1 (DevOps Skeleton)**:
-  - Runtime deps (`pydantic>=2.10`, `trafilatura`, `htmldate`, `curl_cffi`) and dev deps (`pytest`, `pytest-asyncio`, `ruff`) locked via `uv`.
-  - Scaffolded `src/web_scraper/` (`__init__.py`, `models.py`, `extractor.py`, `discovery.py`, `stealth.py`, `cli.py`).
-  - Configured `[tool.ruff]` (`py314`, line-length 100, `E/F/I/UP/B`) in `pyproject.toml`.
-  - Added `tests/test_smoke.py`; verified `pytest` (6 passed), `ruff check`, and `ruff format --check`.
-  - Added `.dockerignore` and multi-stage non-root `Dockerfile` (`ghcr.io/astral-sh/uv:python3.14-bookworm-slim`, `uv sync --frozen --no-dev`).
+  - Locked runtime (`pydantic>=2.10`, `trafilatura`, `htmldate`, `curl_cffi`) and dev (`pytest`, `pytest-asyncio`, `ruff`) deps; scaffolded `src/web_scraper/`, Ruff config, smoke test, `.dockerignore`, multi-stage non-root `Dockerfile`.
+- **Slice 2 (Stealth Layer & Sannysoft Lab)**:
+  - Set `asyncio_default_fixture_loop_scope = "function"` in `[tool.pytest.ini_options]`.
+  - Locked `playwright>=1.65.2` and `playwright-stealth>=2.0` via `uv add`.
+  - Implemented `FetchResult`, `HttpFetcher` (Chrome TLS, UA rotation, jitter delay, 429/5xx exponential backoff), and `BrowserFetcher` (`Stealth().use_async(async_playwright())` v2) in `src/web_scraper/stealth.py`.
+  - Created `scripts/audit_sannysoft.py` (row parser, `data/sannysoft.png`, compact JSON summary).
+  - Added offline unit tests in `tests/test_stealth.py`; verified `pytest` (15 passed), `ruff check`, `ruff format --check`.
 
 ## NextSlice
-- **Slice 2 (Stealth Lab & Sannysoft Pen-Test)**:
-  - Add `playwright`, build stealth HTTP/browser layer in `src/web_scraper/stealth.py`, and validate against Sannysoft bot detection.
+- **Slice 3 (Data Contracts & Extraction Pipeline)**:
+  - Implement strict Pydantic v2 models (`models.py`) and `trafilatura` + `htmldate` extraction/fallback cascade (`extractor.py`).
 
 ## KnownIssues
-- `pytest-asyncio` emits deprecation warning until `asyncio_default_fixture_loop_scope` is set.
+- Live Sannysoft audit requires Chromium binary (`uv run playwright install chromium`) + network run of `scripts/audit_sannysoft.py`.
 - `uv`/`rtk` binaries live outside sandbox `PATH`; sandboxed checks run via `.venv/bin/{pytest,ruff}`.
