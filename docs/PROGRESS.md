@@ -2,20 +2,20 @@
 
 ## CompletedSlices
 - **Slice 1 (DevOps Skeleton)**:
-  - Locked runtime (`pydantic>=2.10`, `trafilatura`, `htmldate`, `curl_cffi`) and dev (`pytest`, `pytest-asyncio`, `ruff`) deps; scaffolded `src/web_scraper/`, Ruff config, smoke test, `.dockerignore`, multi-stage non-root `Dockerfile`.
+  - Locked core/dev deps via `uv`, scaffolded `src/web_scraper/`, Ruff config, smoke test, `.dockerignore`, multi-stage non-root `Dockerfile`.
 - **Slice 2 (Stealth Layer & Sannysoft Lab)**:
-  - Set `asyncio_default_fixture_loop_scope = "function"`; locked `playwright` & `playwright-stealth>=2.0`.
-  - Implemented `FetchResult`, `HttpFetcher`, `BrowserFetcher` (`Stealth().use_async(async_playwright())` v2) in `src/web_scraper/stealth.py`, `scripts/audit_sannysoft.py`, and offline tests in `tests/test_stealth.py`.
+  - Locked `playwright` & `playwright-stealth>=2.0`; implemented `FetchResult`, `HttpFetcher`, `BrowserFetcher` (`Stealth().use_async`), `scripts/audit_sannysoft.py`, and `tests/test_stealth.py`.
 - **Slice 3 (Data Contracts & Extraction Pipeline)**:
-  - Implemented strict Pydantic v2 models (`ExtractionStatus`, `ScrapeConfig`, `DiscoveryCandidate`, `ArticleRecord`) and `JsonlWriter` in `src/web_scraper/models.py`.
-  - Implemented URL/domain/title/hash helpers and `extract_article` (`trafilatura.bare_extraction` + `htmldate.find_date` + date/status fallback cascade) in `src/web_scraper/extractor.py`.
-  - Added offline tests in `tests/test_models.py` and `tests/test_extractor.py`; verified `pytest` (45 passed), `ruff check`, `ruff format --check`.
+  - Implemented strict Pydantic v2 models + `JsonlWriter` (`models.py`), `trafilatura` + `htmldate` extraction & date/status fallback cascade (`extractor.py`), and `tests/test_{models,extractor}.py`.
+- **Slice 4 (Discovery Engine & Early-Stop Pagination)**:
+  - Silenced `urllib3.exceptions.DependencyWarning` in `pyproject.toml`.
+  - Implemented `build_search_query`, `unwrap_redirect_url`, `SearchAdapter`, 4 adapters (`GoogleNewsRssAdapter`, `BingNewsRssAdapter`, `DuckDuckGoAdapter`, `DirectRssAdapter`), and `DiscoveryEngine` with deduplication, `known_urls` (set/callback), `early_stop_threshold`, and `max_results` in `src/web_scraper/discovery.py`.
+  - Added offline tests in `tests/test_discovery.py`; verified `pytest` (56 passed, 0 warnings), `ruff check`, `ruff format --check`.
 
 ## NextSlice
-- **Slice 4 (Discovery Engine & CLI Orchestration)**:
-  - Implement search/RSS discovery, `site:` dorking, date-range query params, pagination early-stop (`early_stop_threshold` + `known_urls`), and CLI entrypoint (`discovery.py`, `cli.py`).
+- **Slice 5 (CLI & End-to-End Orchestration)**:
+  - Wire discovery -> fetch (HTTP with browser fallback) -> extraction -> JSONL/adapter output in `src/web_scraper/cli.py` and public package exports (`__init__.py`).
 
 ## KnownIssues
 - Live Sannysoft audit requires `uv run playwright install chromium` + network run of `scripts/audit_sannysoft.py`.
-- `urllib3` emits `DependencyWarning` for optional `PySocks` when `trafilatura` is imported.
 - `uv`/`rtk` binaries live outside sandbox `PATH`; sandboxed checks run via `.venv/bin/{pytest,ruff}`.
