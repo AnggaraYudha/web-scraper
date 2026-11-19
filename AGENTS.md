@@ -10,7 +10,7 @@
 # State & Artifact Protocol
 - Spec lives in `docs/SPEC.md`. Read only the sections needed for the active slice.
 - Use native `implementation_plan.md` and `task.md` for in-session planning.
-- At the end of every slice, update `docs/PROGRESS.md` (max 25 lines: CompletedSlices, NextSlice, KnownIssues) so fresh chat threads resume with zero context loss.
+- At the end of every slice, update `docs/PROGRESS.md` (max 50 lines: CompletedSlices, NextSlice, KnownIssues) so fresh chat threads resume with zero context loss.
 
 # Architecture Constraints
 - Python 3.14 (`src/web_scraper/` layout). Use `uv add` for dependencies; never edit `pyproject.toml` dependencies manually unless configuring tool sections.
