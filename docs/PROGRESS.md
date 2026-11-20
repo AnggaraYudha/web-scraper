@@ -2,20 +2,22 @@
 
 ## CompletedSlices
 - **Slice 1 (DevOps Skeleton)**:
-  - Locked core/dev deps via `uv`, scaffolded `src/web_scraper/`, Ruff config, smoke test, `.dockerignore`, multi-stage non-root `Dockerfile`.
+  - Core/dev deps locked via `uv`; `src/web_scraper/` scaffold, Ruff config, smoke test, `.dockerignore`, multi-stage non-root `Dockerfile`.
 - **Slice 2 (Stealth Layer & Sannysoft Lab)**:
-  - Locked `playwright` & `playwright-stealth>=2.0`; implemented `FetchResult`, `HttpFetcher`, `BrowserFetcher` (`Stealth().use_async`), `scripts/audit_sannysoft.py`, and `tests/test_stealth.py`.
+  - Locked `playwright` & `playwright-stealth>=2.0`; `FetchResult`, `HttpFetcher`, `BrowserFetcher` (`Stealth().use_async`), `scripts/audit_sannysoft.py`, `tests/test_stealth.py`.
 - **Slice 3 (Data Contracts & Extraction Pipeline)**:
-  - Implemented strict Pydantic v2 models + `JsonlWriter` (`models.py`), `trafilatura` + `htmldate` extraction & date/status fallback cascade (`extractor.py`), and `tests/test_{models,extractor}.py`.
+  - Strict Pydantic v2 models + `JsonlWriter` (`models.py`), `trafilatura` + `htmldate` extraction & fallback cascade (`extractor.py`), `tests/test_{models,extractor}.py`.
 - **Slice 4 (Discovery Engine & Early-Stop Pagination)**:
-  - Silenced `urllib3.exceptions.DependencyWarning` in `pyproject.toml`.
-  - Implemented `build_search_query`, `unwrap_redirect_url`, `SearchAdapter`, 4 adapters (`GoogleNewsRssAdapter`, `BingNewsRssAdapter`, `DuckDuckGoAdapter`, `DirectRssAdapter`), and `DiscoveryEngine` with deduplication, `known_urls` (set/callback), `early_stop_threshold`, and `max_results` in `src/web_scraper/discovery.py`.
-  - Added offline tests in `tests/test_discovery.py`; verified `pytest` (56 passed, 0 warnings), `ruff check`, `ruff format --check`.
+  - `build_search_query`, `unwrap_redirect_url`, 4 adapters (`google`, `bing`, `duckduckgo`, `rss`), `DiscoveryEngine` with `known_urls`, `early_stop_threshold`, `max_results`, `tests/test_discovery.py`.
+- **Slice 5 (End-to-End Pipeline, Telemetry & CI)**:
+  - Implemented stderr JSON telemetry logger, `run_scrape` (concurrent semaphore fetching, `final_url` canonicalization, lazy opt-in `BrowserFetcher` fallback, `FAILED` emission), and `argparse` CLI `main` in `src/web_scraper/cli.py`.
+  - Added public re-exports in `src/web_scraper/__init__.py` (PEP 562 lazy `run_scrape` to avoid `runpy` warning).
+  - Added `.github/workflows/ci.yml` (`lint-and-test` + `docker-build`) and `tests/test_cli.py`; verified `pytest` (62 passed, 0 warnings), `ruff check`, `ruff format --check`.
 
 ## NextSlice
-- **Slice 5 (CLI & End-to-End Orchestration)**:
-  - Wire discovery -> fetch (HTTP with browser fallback) -> extraction -> JSONL/adapter output in `src/web_scraper/cli.py` and public package exports (`__init__.py`).
+- **Live Verification & Hardening**:
+  - Run live Chromium Sannysoft audit (`scripts/audit_sannysoft.py`), end-to-end live smoke scrape, and Docker build verification outside sandbox.
 
 ## KnownIssues
-- Live Sannysoft audit requires `uv run playwright install chromium` + network run of `scripts/audit_sannysoft.py`.
+- Live Sannysoft audit and `--browser-fallback` require `uv run playwright install chromium`.
 - `uv`/`rtk` binaries live outside sandbox `PATH`; sandboxed checks run via `.venv/bin/{pytest,ruff}`.

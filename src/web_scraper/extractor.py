@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import hashlib
 import re
+import warnings
 from datetime import UTC, datetime
 from typing import Any
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 import htmldate
-import trafilatura
 from courlan import extract_domain
+from urllib3.exceptions import DependencyWarning
 
 from web_scraper.models import (
     ArticleRecord,
@@ -17,6 +18,10 @@ from web_scraper.models import (
     coerce_utc_datetime,
 )
 from web_scraper.stealth import FetchResult
+
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", DependencyWarning)
+    import trafilatura
 
 MIN_ARTICLE_WORDS = 100
 CONTENT_HASH_BODY_CHARS = 500
